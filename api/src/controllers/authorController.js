@@ -1,6 +1,6 @@
 const Author = require('../models/Author');
 const bcrypt = require('bcrypt');
-const session = require('express-session');
+const jwt = require('jsonwebtoken');
 
 
 exports.createAuthor = async (req, res) => {
@@ -16,23 +16,26 @@ exports.loginAuthor = async (req,res) => {
     const author = await Author.findOne({email: req.body.email });
     if(author){
         const same = await bcrypt.compare(req.body.password, author.password);
-        if(same){
-            req.session.userID = user._id;
-            res.status(200).json({ message: 'Login successful', author });
-        }else{
-            res.status(401).json({ message: 'Invalid email or password' });
+        if(!same){
+            return res.status(401).json({ message: 'Invalid email or password' });
         }
+        const token = jwt.sign(
+            { id: author._id, email: author.email }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
+        );
+
+        res.status(200).json({ 
+            message: 'Login successful', 
+            token,
+            author:{
+                  id: author._id,
+                name: author.name,
+                email: author.email
+            }
+        });
+
     }else{
         res.status(404).json({ message: 'Author not found' });
     }
-};
-
-exports.logoutAuthor = (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Error logging out', err });
-        }
-        global.userIN = null;
-        res.status(200).json({ message: 'Logout successful' });
-    });
-};
+}
