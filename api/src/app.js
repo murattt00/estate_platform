@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const path = require('path');
 const authorRoute = require("./routes/authorRoute");
 const appointmentRoute = require("./routes/appointmentRoute");
 const cors = require('cors');
@@ -21,11 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/authors", authorRoute);
 app.use("/appointments", appointmentRoute);
 
-app.use(express.static(path.join(__dirname, "../client/dist")));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
-});
 
 //Server
 const port = process.env.PORT || 3000;

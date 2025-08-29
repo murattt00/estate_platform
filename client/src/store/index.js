@@ -1,6 +1,9 @@
 import { createStore } from "vuex"
 import axios from "axios"
 
+
+const API_URL = process.env.VUE_APP_API_URL || 'http://localhost:3000';
+
 const store = createStore({
   state() {
     return {
@@ -34,11 +37,11 @@ const store = createStore({
   },
   actions: {
     async login({ commit }, { email, password }) {
-      const res = await axios.post("http://localhost:3000/authors/login", {
+      const res = await axios.post(`${API_URL}/authors/login`, {
         email,
         password
       })
-      const appointments = await axios.get(`http://localhost:3000/appointments/${res.data.author.id}`, {
+      const appointments = await axios.get(`${API_URL}/appointments/${res.data.author.id}`, {
         headers: {
           Authorization: `Bearer ${res.data.token}`
         }
@@ -53,7 +56,7 @@ const store = createStore({
       commit("clearUser")
     },
     register(_ , { name, email, password }) {
-      return axios.post("http://localhost:3000/authors", {
+      return axios.post(`${API_URL}/authors`, {
         name,
         email,
         password
@@ -61,7 +64,7 @@ const store = createStore({
     },
   async createAppointment({ commit, state }, { appointmentData, agent }) {
   try{
-    const response = await axios.post("http://localhost:3000/appointments", { ...appointmentData, agent }, {
+    const response = await axios.post(`${API_URL}/appointments`, { ...appointmentData, agent }, {
       headers: {Authorization: `Bearer ${state.token}`}
     });
     const updatedAppointments = [...state.appointments, response.data];
@@ -73,7 +76,7 @@ const store = createStore({
 },
   async deleteAppointment({ commit, state }, appointmentId) {
   try {
-    await axios.delete(`http://localhost:3000/appointments/${appointmentId}`, {
+    await axios.delete(`${API_URL}/appointments/${appointmentId}`, {
       headers: { Authorization: `Bearer ${state.token}` }
     });
     const updatedAppointments = state.appointments.filter(a => a._id !== appointmentId);
@@ -84,7 +87,7 @@ const store = createStore({
 },
 async editAppointment({ commit, state }, { appointmentId, updatedData }) {
   try {
-    const response = await axios.put(`http://localhost:3000/appointments/${appointmentId}`, updatedData, {
+    const response = await axios.put(`${API_URL}/appointments/${appointmentId}`, updatedData, {
       headers: { Authorization: `Bearer ${state.token}` }
     });
     const updatedAppointments = state.appointments.map(a => a._id === appointmentId ? response.data : a);
