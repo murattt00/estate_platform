@@ -21,6 +21,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/authors", authorRoute);
 app.use("/appointments", appointmentRoute);
 
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
+});
+
 //Server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
