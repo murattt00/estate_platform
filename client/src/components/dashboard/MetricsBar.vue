@@ -12,7 +12,7 @@
             <div class="card card-soft shadow-sm">
               <div class="card-body">
                 <div class="text-muted">Upcoming Appointments</div>
-                <div class="metric">3</div>
+                <div class="metric">{{ getAppointments.filter(appointment => !appointment.completed).length }}</div>
               </div>
             </div>
           </div>
@@ -20,7 +20,7 @@
             <div class="card card-soft shadow-sm">
               <div class="card-body">
                 <div class="text-muted">Completed</div>
-                <div class="metric">20</div>
+                <div class="metric">{{ getAppointments.filter(appointment => appointment.completed).length }}</div>
               </div>
             </div>
           </div>

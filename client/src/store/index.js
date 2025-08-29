@@ -9,7 +9,8 @@ const store = createStore({
     return {
       token: localStorage.getItem("token") || null,
       author: localStorage.getItem("author") ? JSON.parse(localStorage.getItem("author")) : null,
-      appointments: localStorage.getItem("appointments") ? JSON.parse(localStorage.getItem("appointments")) : []
+      appointments: localStorage.getItem("appointments") ? JSON.parse(localStorage.getItem("appointments")) : [],
+      syncInterval: null
     }
   },
   mutations: {
@@ -30,6 +31,10 @@ const store = createStore({
       state.token = null
       state.author = null
       state.appointments = []
+      if (state.syncInterval) {
+        clearInterval(state.syncInterval)
+        state.syncInterval = null
+      }
       localStorage.removeItem("token")
       localStorage.removeItem("author")
       localStorage.removeItem("appointments")
@@ -62,6 +67,34 @@ const store = createStore({
         password
       })
     },
+    async updateAppointments({ commit, state }) {
+      if (!state.author?.id || !state.token) return;
+      
+      try {
+        console.log('Updating appointments...');
+        const response = await axios.get(`${API_URL}/appointments/${state.author.id}`, {
+          headers: { Authorization: `Bearer ${state.token}` }
+        });
+        commit("setAppointments", response.data.appointments || []);
+        console.log('Appointments updated!');
+      } catch (error) {
+        console.error("Update failed:", error);
+      }
+    },
+
+    startAutoUpdate({ dispatch, state }) {
+      // Eğer zaten interval varsa temizle
+      if (state.syncInterval) {
+        clearInterval(state.syncInterval);
+      }
+      dispatch('updateAppointments');
+      state.syncInterval = setInterval(() => {
+        dispatch('updateAppointments');
+      }, 2 * 60 * 1000); // 2 dakika
+      
+      console.log('Auto update started - every 2 minutes');
+    },
+
   async createAppointment({ commit, state }, { appointmentData, agent }) {
   try{
     const response = await axios.post(`${API_URL}/appointments`, { ...appointmentData, agent }, {

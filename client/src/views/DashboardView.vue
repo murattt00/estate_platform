@@ -33,8 +33,11 @@ import UpcomingAppointments from '@/components/dashboard/UpcomingAppointments.vu
 import AddButton from '@/components/dashboard/AddButton.vue';
 import TopBar from '@/components/comman/TopBar.vue';
 import NewAppointmentModal from '@/components/Appointment/NewAppointmentModal.vue';
+import { onMounted } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
+  
   components: {
     NavBar,
     MetricsBar,
@@ -42,6 +45,16 @@ export default {
     AddButton,
     TopBar,
     NewAppointmentModal
+  },
+  setup() {
+    const store = useStore()
+    
+    // ✅ Sayfa açılışında auto update başlat
+    onMounted(() => {
+      store.dispatch('startAutoUpdate')
+    })
+
+    // ...diğer kodlar...
   }
 }
 </script>

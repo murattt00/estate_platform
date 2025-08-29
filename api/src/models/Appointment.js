@@ -46,7 +46,26 @@ const appointmentSchema = new mongoose.Schema({
     availableAgainTime: { 
         type: Date 
     },
+    completed: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true });
+
+
+appointmentSchema.statics.updateExpiredAppointments = async function() {
+    const result = await this.updateMany(
+        { 
+            availableAgainTime: { $lt: new Date() },
+            completed: false 
+        },
+        { completed: true }
+    );
+};
+
+appointmentSchema.pre(['find', 'findOne', 'findOneAndUpdate'], async function() {
+    await this.model.updateExpiredAppointments();
+});
 
 
 
@@ -70,6 +89,8 @@ appointmentSchema.pre("save", async function (next) {
   await recalcFields(this);
   next();
 });
+
+
 
 const Appointment = mongoose.model('Appointment', appointmentSchema);
 module.exports = {Appointment, recalcFields};
