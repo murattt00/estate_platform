@@ -43,9 +43,9 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
-    next({ name: "login" }) // giriş yoksa login sayfasına yönlendir
+    next({ name: "login" }) 
   } else {
-    next() // geçişe izin ver
+    next() 
   }
 })
 

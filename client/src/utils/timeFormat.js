@@ -4,7 +4,7 @@ exports.formatDateWithOffset = function(dateInput, hourOffset = 0) {
   const date = new Date(dateInput);
   if (isNaN(date)) return "";
 
-  // Saat farkını ms cinsinden uygula
+  
   const adjusted = new Date(date.getTime() + hourOffset * 60 * 60 * 1000);
 
   return adjusted.toLocaleString("tr-TR", {

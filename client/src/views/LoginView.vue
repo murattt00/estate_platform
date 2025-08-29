@@ -6,7 +6,7 @@
 </template>
 
 <script>
-// @ is an alias to /src
+
 
 import LoginUser from '../components/LoginRegister/LoginUser.vue'
 import LoginRegisterNav from '../components/LoginRegister/LoginRegisterNav.vue'
