@@ -1,0 +1,106 @@
+import { createStore } from "vuex"
+import axios from "axios"
+
+const store = createStore({
+  state() {
+    return {
+      token: localStorage.getItem("token") || null,
+      author: localStorage.getItem("author") ? JSON.parse(localStorage.getItem("author")) : null,
+      appointments: localStorage.getItem("appointments") ? JSON.parse(localStorage.getItem("appointments")) : []
+    }
+  },
+  mutations: {
+    setUser(state, payload) {
+      state.token = payload.token
+      state.author = payload.author
+      state.appointments = payload.appointments
+      // localStorage’a yaz
+      localStorage.setItem("token", payload.token)
+      localStorage.setItem("author", JSON.stringify(payload.author))
+      localStorage.setItem("appointments", JSON.stringify(payload.appointments))
+    },
+    setAppointments(state, appointments) {
+      state.appointments = appointments
+      localStorage.setItem("appointments", JSON.stringify(appointments))
+      },
+    clearUser(state) {
+      state.token = null
+      state.author = null
+      state.appointments = []
+      localStorage.removeItem("token")
+      localStorage.removeItem("author")
+      localStorage.removeItem("appointments")
+    }
+  },
+  actions: {
+    async login({ commit }, { email, password }) {
+      const res = await axios.post("http://localhost:3000/authors/login", {
+        email,
+        password
+      })
+      const appointments = await axios.get(`http://localhost:3000/appointments/${res.data.author.id}`, {
+        headers: {
+          Authorization: `Bearer ${res.data.token}`
+        }
+      })
+      commit("setUser", {
+        token: res.data.token,
+        author: res.data.author,
+        appointments: appointments.data.appointments || []
+      })
+    },
+    logout({ commit }) {
+      commit("clearUser")
+    },
+    register(_ , { name, email, password }) {
+      return axios.post("http://localhost:3000/authors", {
+        name,
+        email,
+        password
+      })
+    },
+  async createAppointment({ commit, state }, { appointmentData, agent }) {
+  try{
+    const response = await axios.post("http://localhost:3000/appointments", { ...appointmentData, agent }, {
+      headers: {Authorization: `Bearer ${state.token}`}
+    });
+    const updatedAppointments = [...state.appointments, response.data];
+    commit("setAppointments", updatedAppointments);
+  } catch (error) {
+    console.error("Error creating appointment:", error);
+    throw error;
+  }
+},
+  async deleteAppointment({ commit, state }, appointmentId) {
+  try {
+    await axios.delete(`http://localhost:3000/appointments/${appointmentId}`, {
+      headers: { Authorization: `Bearer ${state.token}` }
+    });
+    const updatedAppointments = state.appointments.filter(a => a._id !== appointmentId);
+    commit('setAppointments', updatedAppointments);
+  } catch (err) {
+    console.error('Delete appointment failed:', err);
+  }
+},
+async editAppointment({ commit, state }, { appointmentId, updatedData }) {
+  try {
+    const response = await axios.put(`http://localhost:3000/appointments/${appointmentId}`, updatedData, {
+      headers: { Authorization: `Bearer ${state.token}` }
+    });
+    const updatedAppointments = state.appointments.map(a => a._id === appointmentId ? response.data : a);
+    commit('setAppointments', updatedAppointments);
+  } catch (error) {
+    console.error("Error editing appointment:", error);
+    throw error;
+  }
+},
+},
+  getters: {
+    isAuthenticated: (state) => !!state.token,
+    currentAuthor: (state) => state.author,
+    getAppointments: (state) => state.appointments || []
+  }
+})
+
+export default store
+

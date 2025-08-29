@@ -17,6 +17,9 @@ const appointmentSchema = new mongoose.Schema({
     customerEmail: { 
         type: String 
     },
+    customerPhone: { 
+        type: String 
+    },
     propertyPostcode: { 
         type: String, 
         required: true 
@@ -24,6 +27,12 @@ const appointmentSchema = new mongoose.Schema({
     appointmentDate: { 
         type: Date, 
         required: true 
+    },
+    notes:{
+        type: String
+    },
+    distance: {
+        type: String
     },
     travelTime: { 
         type: String, 
@@ -41,18 +50,26 @@ const appointmentSchema = new mongoose.Schema({
 
 
 
-appointmentSchema.pre('validate', async function(next) {
-    const officeCoords = await postcode.getCoordinates(process.env.Office_Postcode);
-    const propertyCoords = await postcode.getCoordinates(this.propertyPostcode);
-    const travelData = await map.getTravelData(officeCoords, propertyCoords);
+async function recalcFields(doc) {
+  const officeCoords = await postcode.getCoordinates(process.env.Office_Postcode);
+  const propertyCoords = await postcode.getCoordinates(doc.propertyPostcode);
+  const travelData = await map.getTravelData(officeCoords, propertyCoords);
 
-    this.travelTime = travelData.duration;
-    this.departureTime = new Date(this.appointmentDate.getTime() - travelData.durationValue * 1000);
-    this.returnTime = new Date(this.departureTime.getTime() + travelData.durationValue * 1000 * 2 + 60 * 60 * 1000); // 1 saat görüşme süresi
-    this.availableAgainTime = new Date(this.returnTime.getTime());
+  doc.distance = travelData.distance;
+  doc.travelTime = travelData.duration;
 
-    next();
+  const appointmentDate = new Date(doc.appointmentDate);
+
+  doc.departureTime = new Date(appointmentDate.getTime() - travelData.durationValue * 1000);
+  doc.returnTime = new Date(doc.departureTime.getTime() + travelData.durationValue * 1000 * 2 + 60 * 60 * 1000);
+  doc.availableAgainTime = doc.returnTime;
+}
+
+// Create & Save için
+appointmentSchema.pre("save", async function (next) {
+  await recalcFields(this);
+  next();
 });
 
 const Appointment = mongoose.model('Appointment', appointmentSchema);
-module.exports = Appointment;
+module.exports = {Appointment, recalcFields};

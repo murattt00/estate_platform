@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken');
 
 exports.createAuthor = async (req, res) => {
     try {
-        const newAuthor = await Author.create(req.body);
-        res.status(201).json({ message: 'Author created successfully', author: newAuthor });
+        await Author.create(req.body);
+        res.status(201).json({ message: 'Author created successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error creating author', error });
     }
@@ -20,7 +20,7 @@ exports.loginAuthor = async (req,res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
         const token = jwt.sign(
-            { id: author._id, email: author.email }, 
+            { id: author._id, email: author.email , name: author.name}, 
             process.env.JWT_SECRET, 
             { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
         );

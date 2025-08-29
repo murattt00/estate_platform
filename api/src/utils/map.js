@@ -18,6 +18,7 @@ exports.getTravelData = async (office, destination) => {
     if (element.status !== "OK") throw new Error("Invalid route");
 
     return {
+      distance: element.distance.text,       // "10 km"
       duration: element.duration.text,       // "25 mins"
       durationValue: element.duration.value  // saniye
     };
