@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "scripts": {
     "start": "cd api && npm start",
-    "build": "cd client && npm install && npm run build && cd ../api && npm install"
+    "build": "npm run install:all && npm run build:frontend",
+    "build:frontend": "cd client && npm run build",
+    "install:all": "cd api && npm install && cd ../client && npm install",
+    "dev": "npm run dev:backend & npm run dev:frontend",
+    "dev:backend": "cd api && npm run dev",
+    "dev:frontend": "cd client && npm run serve"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
