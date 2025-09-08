@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="container py-3">
+  <div class="container py-3">
+    
     <!-- Top Bar -->
     <TopBar></TopBar>
     <div class="app-shell d-flex gap-3">
@@ -11,11 +11,11 @@
     <h3 class="mb-4">Appointments</h3>
     <AppointmentsList></AppointmentsList>
     </main>
-    </div>
-  </div>
-
-  <!-- New Appointment Modal -->
+     <!-- New Appointment Modal -->
   <NewAppointmentModal></NewAppointmentModal>
+    </div>
+
+
   </div>
 </template>
 

@@ -49,12 +49,11 @@ export default {
   setup() {
     const store = useStore()
     
-    // ✅ Sayfa açılışında auto update başlat
     onMounted(() => {
       store.dispatch('startAutoUpdate')
     })
 
-    // ...diğer kodlar...
+  
   }
 }
 </script>

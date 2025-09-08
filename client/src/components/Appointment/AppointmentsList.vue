@@ -1,6 +1,6 @@
 <template>
   <div class="row g-3">
-      <div class="col-12">
+      <div class="col-md-12">
         <div class="card card-soft shadow-sm">
           <div class="card-body">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -20,7 +20,7 @@
                     <th>Client</th>
                     <th>Email</th>
                     <th>Postcode</th>
-                    <th>Distance</th>
+                    <th >Distance</th>
                     <th>Date</th>
                     <th>Departure</th>
                     <th>Available Again</th>
