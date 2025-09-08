@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 
 exports.createAuthor = async (req, res) => {
     try {
-        const authorData = req.body;
+         const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const authorData = { ...req.body, password: hashedPassword };
         await Author.create(authorData);
         res.status(201).json({ message: 'Author created successfully' });
     } catch (error) {
